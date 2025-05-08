@@ -2,6 +2,21 @@
 const { useState } = React;
 const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } = Recharts;
 
+// Import du composant TournamentsMap (importé dynamiquement)
+function LazyTournamentsMap({ gender }) {
+  return (
+    <div className="min-h-96 w-full">
+      <React.Suspense fallback={
+        <div className="bg-white p-4 rounded-lg shadow-md text-center h-96 flex items-center justify-center">
+          <span>Chargement de la carte des tournois...</span>
+        </div>
+      }>
+        <TournamentsMap gender={gender} />
+      </React.Suspense>
+    </div>
+  );
+}
+
 const TennisTracker = () => {
   const [gender, setGender] = React.useState("hommes");
   const [view, setView] = React.useState("general");
@@ -144,6 +159,12 @@ const TennisTracker = () => {
               Par Tournoi
             </button>
             <button 
+              className={`px-4 py-3 text-sm font-medium ${view === 'map' ? 'text-blue-700 border-b-2 border-blue-700' : 'text-gray-600'}`}
+              onClick={() => setView('map')}
+            >
+              Carte des Tournois
+            </button>
+            <button 
               className={`px-4 py-3 text-sm font-medium ${view === 'rankings' ? 'text-blue-700 border-b-2 border-blue-700' : 'text-gray-600'}`}
               onClick={() => setView('rankings')}
             >
@@ -259,6 +280,11 @@ const TennisTracker = () => {
           </div>
         )}
         
+        {/* Map view - Nouvelle vue pour la carte des tournois */}
+        {view === 'map' && (
+          <LazyTournamentsMap gender={gender} />
+        )}
+        
         {/* Rankings view */}
         {view === 'rankings' && (
           <div className="bg-white p-4 rounded-lg shadow-md">
@@ -300,5 +326,8 @@ const TennisTracker = () => {
     </div>
   );
 };
+
+// Définir le composant global
+window.TournamentsMap = LazyTournamentsMap;
 
 ReactDOM.render(<TennisTracker />, document.getElementById('root'));
